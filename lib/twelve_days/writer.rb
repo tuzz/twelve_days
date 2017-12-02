@@ -3,7 +3,7 @@ class Writer
     song = Song.new.generate
     words = song.split(/\s+/)
 
-    CSV.open("song.csv", "w") do |csv|
+    CSV($stdout) do |csv|
       words.each.with_index do |word, index|
         csv << [word, *binary(index), category(word)]
       end

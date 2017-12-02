@@ -2,7 +2,7 @@ addpath("lib/twelve_days");
 
 % Read the data from the CSV, preserving the labels.
 [words, x1, x2, x3, x4, x5, x6, x7, x8, x9, y] = ...
-	textread("song.csv", "%s %f %f %f %f %f %f %f %f %f %f", "delimiter", ",");
+	textread("./bin/song.csv", "%s %f %f %f %f %f %f %f %f %f %f", "delimiter", ",");
 
 % Input data: binary number of the word in the song.
 X = [x1 x2 x3 x4 x5 x6 x7 x8 x9];
