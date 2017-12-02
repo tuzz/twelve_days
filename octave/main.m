@@ -18,7 +18,7 @@ n = size(X, 2);
 K = max(y);
 
 % Pick a number of hidden units that can map to the points of a Koch snowflake.
-h = 3 * 4^0; # TODO
+h = 3 * 4^2;
 
 % Add a small amount of bias to prevent overfitting. This number was adjusted by
 % training the network with different lambdas then looking at how well it
