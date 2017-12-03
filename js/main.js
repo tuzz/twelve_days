@@ -5,5 +5,7 @@
   var network = new Network();
   var view = new View(network);
 
-  view.render();
+  setTimeout(function () {
+    view.render();
+  }, 100);
 })();

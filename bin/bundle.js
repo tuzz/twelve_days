@@ -74,7 +74,9 @@
   var network = new Network();
   var view = new View(network);
 
-  view.render();
+  setTimeout(function () {
+    view.render();
+  }, 100);
 })();
 
 
@@ -189,16 +191,18 @@ var View = function (network) {
     var width = 600;
 
     snowflake = new Snowflake({ x: x, y: y }, width, 2);
+
+    renderImages();
   };
 
   self.render = function () {
-    context.clearRect(0, 0, canvas.width, canvas.height);
+    context.clearRect(176, 0, canvas.width - 352, canvas.height);
 
     renderNetworkEdges();
     renderSnowflake();
     renderInputLayer();
     renderHiddenLayer();
-    renderImages();
+    renderOutputLayer();
   };
 
   var renderSnowflake = function () {
@@ -236,6 +240,20 @@ var View = function (network) {
         context.strokeStyle = randomBlue();
 
         context.globalAlpha = 0.3;
+        drawLine(from, to);
+      }
+    }
+
+    for (var i = 0; i < network.hidden.length; i += 1) {
+      var from = snowflake.points[i];
+
+      for (var j = 0; j < network.output.length; j += 1) {
+        var to = imagePoint(j, true);
+
+        context.lineWidth = 1;
+        context.strokeStyle = randomBlue();
+
+        context.globalAlpha = 0.05;
         drawLine(from, to);
       }
     }
@@ -278,31 +296,31 @@ var View = function (network) {
   };
 
   var renderImages = function () {
-    for (var i = 0; i < 14; i += 1) {
+    for (var i = 0; i < network.output.length; i += 1) {
       var name = network.nameFor(i + 1);
       var path = "images/" + name + ".jpg";
+      var point = imagePoint(i);
 
-      var x, y;
-
-      if (i < 7) {
-        x = 0;
-        y = i * 100;
-      } else {
-        x = canvas.width - 176;
-        y = (i - 7) * 100;
-      }
-
-      drawImage(path, x, y);
+      drawImage(path, point);
     }
   };
 
-  var drawImage = function (path, x, y) {
+  var renderOutputLayer = function () {
+    for (var i = 0; i < network.output.length; i += 1) {
+      var neuron = network.output[i];
+      var point = imagePoint(i, true);
+
+      drawNeuron(neuron, point, false);
+    }
+  };
+
+  var drawImage = function (path, point) {
     var image = new Image();
 
     image.onload = function () {
-      context.drawImage(image, x, y, 175, 100);
+      context.drawImage(image, point.x, point.y, 175, 100);
       context.strokeStyle = "gray";
-      context.strokeRect(x, y, 175, 100);
+      context.strokeRect(point.x, point.y, 175, 100);
     }
 
     image.src = path;
@@ -324,6 +342,22 @@ var View = function (network) {
     };
   };
 
+  var imagePoint = function (i, offset = false) {
+    if (i < network.output.length / 2) {
+      x = offset ? 175 : 0;
+      y = i * 100;
+    } else {
+      x = canvas.width - 176;
+      y = (i - 7) * 100;
+    }
+
+    if (offset) {
+      y += 50;
+    }
+
+    return { x: x, y: y };
+  };
+
   var drawText = function (text, point, fontSize) {
     context.fillStyle = "black";
     context.font = "" + fontSize + "px Arial";
@@ -340,7 +374,7 @@ var View = function (network) {
     context.closePath();
   };
 
-  var drawNeuron = function (neuron, point) {
+  var drawNeuron = function (neuron, point, enableBlur = true) {
     var radius = snowflake.width / 50;
     var color = activationColor(neuron);
     var blur = radius * 2;
@@ -349,7 +383,7 @@ var View = function (network) {
     context.arc(point.x, point.y, radius, 0, 2 * Math.PI, false);
     context.fillStyle = color;
     context.shadowColor = "yellow";
-    context.shadowBlur = neuron > 0.8 ? blur : 0;
+    context.shadowBlur = enableBlur && neuron > 0.8 ? blur : 0;
     context.fill();
     context.lineWidth = 1;
     context.stroke();
