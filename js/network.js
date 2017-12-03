@@ -8,7 +8,9 @@ var Network = function () {
     stats = networkData.stats;
     data = networkData.data;
 
-    self.setDecimalInput(0);
+    self.setDecimalInput(13);
+
+    setWords();
   };
 
   self.setBinaryInput = function (binary) {
@@ -67,6 +69,17 @@ var Network = function () {
   // Octave is 1-indexed rather than 0-indexed.
   var indexToDecimal = function (index) {
     return index - 1;
+  };
+
+  var setWords = function () {
+    var words = [];
+
+    for (var i = 1; i < data.length; i += 1) {
+      var item = data[i];
+      words[item.index - 1] = item.word;
+    }
+
+    self.words = words;
   };
 
   initialize();

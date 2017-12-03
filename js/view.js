@@ -31,7 +31,8 @@ var View = function (network) {
     renderHiddenLayer();
     renderOutputLayer();
     renderArrow("guess", network.guess, "orange", -30);
-    renderArrow("answer", network.guess, "green", 30);
+    renderArrow("answer", network.category, "green", 30);
+    renderSong();
   };
 
   var renderSnowflake = function () {
@@ -159,6 +160,42 @@ var View = function (network) {
     drawText(text, point, 24, color);
   };
 
+  var renderSong = function () {
+    var word = network.word;
+
+    var x = canvas.width / 2;
+    var y = canvas.height - 40;
+    var space = word.length * 8 + 20;
+
+    renderWordsBetween(-11, -1, { x: x - space, y: y }, "right");
+    renderWordsBetween(1, 11, { x: x + space, y: y }, "left");
+    drawText(word, { x: x, y: y - 3 }, 40, "black", "times");
+  };
+
+  var renderWordsBetween = function(from, to, point, align) {
+    var current = network.decimal;
+    var words = [];
+    var dots = true;
+
+    for (var i = from; i <= to; i += 1) {
+      var word = network.words[current + i];
+
+      if (word) {
+        words.push(word);
+      } else {
+        dots = false;
+      }
+    }
+
+    if (align === "left" && dots) {
+      words.push("...");
+    } else if (dots) {
+      words = ["..."].concat(words);
+    }
+
+    drawText(words.join(" "), point, 24, "black", "times", align);
+  };
+
   var drawImage = function (path, point) {
     var image = new Image();
 
@@ -203,10 +240,10 @@ var View = function (network) {
     return { x: x, y: y };
   };
 
-  var drawText = function (text, point, fontSize, color = "black") {
+  var drawText = function (text, point, fontSize, color = "black", face = "Arial", align = "center") {
     context.fillStyle = color;
-    context.font = "" + fontSize + "px Arial";
-    context.textAlign = "center";
+    context.font = "" + fontSize + "px " + face;
+    context.textAlign = align;
     context.textBaseline = "middle";
     context.fillText(text, point.x, point.y);
   };
