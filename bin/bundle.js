@@ -341,25 +341,40 @@ var View = function (network) {
     for (var i = 0; i < network.output.length; i += 1) {
       var neuron = network.output[i];
       var point = imagePoint(i, true);
+      var text = Math.round(neuron * 100) + "%";
 
       drawNeuron(neuron, point, false);
+
+      if (point.x < canvas.width / 2) {
+        point.x += 20;
+        align = "left";
+      } else {
+        point.x -= 20;
+        align = "right";
+      }
+
+      point.y += 1;
+      drawText(text, point, 16, "black", "Arial", align);
     }
   };
 
   var renderArrow = function (text, decimal, color, offset) {
     var point = imagePoint(decimal - 1, true);
+    var align;
 
     if (point.x < canvas.width / 2) {
-      point.x += 60;
+      point.x += 5;
       text = "← " + text;
+      align = "left";
     } else {
-      point.x -= 60;
+      point.x -= 5;
       text += " →";
+      align = "right";
     }
 
     point.y = point.y + offset;
 
-    drawText(text, point, 24, color);
+    drawText(text, point, 24, color, "Arial", align);
   };
 
   var renderSong = function () {
@@ -455,7 +470,7 @@ var View = function (network) {
       y: (centroid.y + Math.cos(ratio * 2 * Math.PI) * radius)
     };
 
-    inputRotation -= rotation / 40;
+    inputRotation -= rotation / 30;
 
     if (inputRotation < 0) {
       inputRotation += 360;
