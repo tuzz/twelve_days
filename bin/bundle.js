@@ -203,6 +203,8 @@ var View = function (network) {
     renderInputLayer();
     renderHiddenLayer();
     renderOutputLayer();
+    renderArrow("guess", network.guess, "orange", -30);
+    renderArrow("answer", network.guess, "green", 30);
   };
 
   var renderSnowflake = function () {
@@ -314,6 +316,22 @@ var View = function (network) {
     }
   };
 
+  var renderArrow = function (text, decimal, color, offset) {
+    var point = imagePoint(decimal - 1, true);
+
+    if (point.x < canvas.width / 2) {
+      point.x += 60;
+      text = "← " + text;
+    } else {
+      point.x -= 60;
+      text += " →";
+    }
+
+    point.y = point.y + offset;
+
+    drawText(text, point, 24, color);
+  };
+
   var drawImage = function (path, point) {
     var image = new Image();
 
@@ -358,8 +376,8 @@ var View = function (network) {
     return { x: x, y: y };
   };
 
-  var drawText = function (text, point, fontSize) {
-    context.fillStyle = "black";
+  var drawText = function (text, point, fontSize, color = "black") {
+    context.fillStyle = color;
     context.font = "" + fontSize + "px Arial";
     context.textAlign = "center";
     context.textBaseline = "middle";
