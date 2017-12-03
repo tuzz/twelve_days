@@ -28,7 +28,8 @@ var View = function (network) {
     context.clearRect(176, 0, canvas.width - 353, canvas.height - 60);
     context.clearRect(0, canvas.height - 60, canvas.width, 60);
 
-    renderNetworkEdges();
+    renderInputToHiddenEdges();
+    renderHiddenToOutputEdges();
     renderSnowflake();
     renderInputLayer();
     renderHiddenLayer();
@@ -64,7 +65,7 @@ var View = function (network) {
     return color;
   };
 
-  var renderNetworkEdges = function () {
+  var renderInputToHiddenEdges = function () {
     for (var i = 0; i < network.binary.length; i += 1) {
       var from = inputPoint(i);
 
@@ -79,6 +80,10 @@ var View = function (network) {
       }
     }
 
+    context.globalAlpha = 1;
+  };
+
+  var renderHiddenToOutputEdges = function () {
     for (var i = 0; i < network.hidden.length; i += 1) {
       var from = snowflake.points[i];
 
