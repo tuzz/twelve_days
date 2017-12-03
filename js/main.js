@@ -5,7 +5,8 @@
   var network = new Network();
   var view = new View(network);
 
-  setTimeout(function () {
+  setInterval(function () {
+    view.rotate();
     view.render();
-  }, 100);
+  }, 1000 / 60);
 })();

@@ -4,6 +4,7 @@ var View = function (network) {
   var self = this;
   var canvas, context;
   var snowflake;
+  var rotation = 0.02;
 
   var initialize = function () {
     canvas = document.getElementById("canvas");
@@ -21,6 +22,10 @@ var View = function (network) {
 
     renderImages();
     bindKeys();
+  };
+
+  self.rotate = function () {
+    snowflake.rotate(rotation);
   };
 
   self.render = function () {
@@ -42,7 +47,7 @@ var View = function (network) {
   };
 
   var renderSnowflake = function () {
-    var color = randomBlue();
+    var color = "#0077cc";
 
     context.strokeStyle = color;
     context.lineWidth = snowflake.width / 100;
@@ -73,7 +78,7 @@ var View = function (network) {
         var to = snowflake.points[j];
 
         context.lineWidth = 1;
-        context.strokeStyle = randomBlue();
+        context.strokeStyle = "#0088cc";
 
         context.globalAlpha = 0.3;
         drawLine(from, to);
@@ -91,7 +96,7 @@ var View = function (network) {
         var to = imagePoint(j, true);
 
         context.lineWidth = 1;
-        context.strokeStyle = randomBlue();
+        context.strokeStyle = "#0077cc";
 
         context.globalAlpha = 0.05;
         drawLine(from, to);
@@ -341,18 +346,6 @@ var View = function (network) {
     if (i === network.words.length - 1) return;
     network.setDecimalInput(i + 1);
     self.render();
-  };
-
-  var randomBlue = function () {
-    var hex = ["a", "b", "c", "d", "e", "f"];
-
-    var green = Math.floor(Math.random() * 6) + 4;
-    var blue = Math.floor(Math.random() * 6);
-
-    var g = "" + green;
-    var b = "" + hex[blue];
-
-    return "#00" + g + g + b + b;
   };
 
   var activationColor = function (neuron) {

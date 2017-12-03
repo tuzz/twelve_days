@@ -15,6 +15,34 @@ var Snowflake = function (centroid, width, iterations = 3) {
     self.iterations = iterations;
   };
 
+  self.rotate = function (degrees) {
+    var points = [];
+
+    for (var i = 0; i < self.points.length; i += 1) {
+      var point = self.points[i];
+      var rotated = self.rotatePoint(point, degrees);
+
+      points.push(rotated);
+    }
+
+    self.points = points;
+  };
+
+  self.rotatePoint = function (point, degrees) {
+    var theta = degrees * Math.PI / 180;
+
+    var cx = centroid.x;
+    var cy = centroid.y;
+
+    var px = point.x;
+    var py = point.y;
+
+    var x = Math.cos(theta) * (px - cx) - Math.sin(theta) * (py - cy) + cx;
+    var y = Math.sin(theta) * (px - cx) + Math.cos(theta) * (py - cy) + cy;
+
+    return { x: x, y: y };
+  }
+
   var generate = function (a, b, iter = 0) {
     if (iter == iterations) return [a, b];
 
