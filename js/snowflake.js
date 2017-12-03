@@ -10,6 +10,9 @@ var Snowflake = function (centroid, width, iterations = 3) {
     points = points.concat(generate(init.bottom, init.topLeft));
 
     self.points = unique(points);
+    self.centroid = centroid;
+    self.width = width;
+    self.iterations = iterations;
   };
 
   var generate = function (a, b, iter = 0) {
