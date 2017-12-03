@@ -358,7 +358,7 @@ var View = function (network) {
 
     renderWordsBetween(-11, -1, { x: x - space, y: y }, "right");
     renderWordsBetween(1, 11, { x: x + space, y: y }, "left");
-    drawText(word, { x: x, y: y - 3 }, 40, "black", "times");
+    drawText(word, { x: x, y: y - 3 }, 40, "blue", "times");
   };
 
   var renderWordsBetween = function(from, to, point, align) {
