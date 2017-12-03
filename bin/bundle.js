@@ -86,12 +86,12 @@
 
 var Network = function () {
   var self = this;
-  var data, stats;
+  var data;
 
   var initialize = function () {
     var networkData = __webpack_require__(2);
 
-    stats = networkData.stats;
+    self.stats = networkData.stats;
     data = networkData.data;
 
     self.setDecimalInput(13);
@@ -223,6 +223,7 @@ var View = function (network) {
     renderArrow("answer", network.category, "green", 30);
     renderSong();
     renderTrained();
+    renderStats();
   };
 
   var renderSnowflake = function () {
@@ -403,6 +404,16 @@ var View = function (network) {
     }
 
     drawText(text, { x: x, y: y }, 20, color);
+  };
+
+  var renderStats = function () {
+    var train = "training accurancy: " + network.stats.train + "%";
+    var test = "test accurancy: " + network.stats.test + "%";
+    var total = "overall: " + network.stats.total + "%";
+
+    drawText(train, { x: canvas.width - 300, y: 20 }, 14, "black", "Arial", "right");
+    drawText(test, { x: canvas.width - 300, y: 40 }, 14, "black", "Arial", "right");
+    drawText(total, { x: canvas.width - 300, y: 60 }, 14, "black", "Arial", "right");
   };
 
   var drawImage = function (path, point) {

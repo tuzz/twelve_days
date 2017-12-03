@@ -1,11 +1,11 @@
 var Network = function () {
   var self = this;
-  var data, stats;
+  var data;
 
   var initialize = function () {
     var networkData = require("../bin/network.json");
 
-    stats = networkData.stats;
+    self.stats = networkData.stats;
     data = networkData.data;
 
     self.setDecimalInput(13);
