@@ -36,6 +36,7 @@ var View = function (network) {
     renderArrow("guess", network.guess, "orange", -30);
     renderArrow("answer", network.category, "green", 30);
     renderSong();
+    renderTrained();
   };
 
   var renderSnowflake = function () {
@@ -167,7 +168,7 @@ var View = function (network) {
     var word = network.word;
 
     var x = canvas.width / 2;
-    var y = canvas.height - 40;
+    var y = canvas.height - 50;
     var space = word.length * 8 + 20;
 
     renderWordsBetween(-11, -1, { x: x - space, y: y }, "right");
@@ -197,6 +198,25 @@ var View = function (network) {
     }
 
     drawText(words.join(" "), point, 24, "black", "times", align);
+  };
+
+  var renderTrained = function () {
+    var x = canvas.width / 2;
+    var y = canvas.height - 15;
+
+    var binary = network.binary.join("");
+    var word = network.word;
+
+    var text, color;
+    if (network.trained) {
+      text = "(the network was trained with " + binary + "=" + word +")";
+      color = "gray";
+    } else {
+      text = "(the network has never seen " + binary + " before)";
+      color = "purple";
+    }
+
+    drawText(text, { x: x, y: y }, 20, color);
   };
 
   var drawImage = function (path, point) {
