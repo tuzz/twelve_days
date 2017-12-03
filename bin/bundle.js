@@ -193,6 +193,14 @@ var View = function (network) {
   var snowflake;
   var rotation = 0.02;
 
+  if (window.location.href.indexOf("dizzy") !== -1) {
+    rotation *= 20;
+
+    var link = document.getElementById("dizzy");
+    link.href = "/";
+    link.text = "i'm dizzy enough";
+  }
+
   var initialize = function () {
     canvas = document.getElementById("canvas");
     canvas.width = 1200;

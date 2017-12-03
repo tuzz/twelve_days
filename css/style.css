@@ -17,3 +17,14 @@ canvas {
   margin: auto;
   margin-top: 1em;
 }
+
+#dizzy {
+  font-family: "Helvetica";
+  position: absolute;
+  right: 2em;
+  color: #0077ff;
+}
+
+strong {
+  font-weight: bold;
+}
