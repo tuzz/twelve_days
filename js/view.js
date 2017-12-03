@@ -25,7 +25,7 @@ var View = function (network) {
 
   self.render = function () {
     // Clear everything except the images.
-    context.clearRect(176, 0, canvas.width - 352, canvas.height - 60);
+    context.clearRect(176, 0, canvas.width - 353, canvas.height - 60);
     context.clearRect(0, canvas.height - 60, canvas.width, 60);
 
     renderNetworkEdges();
