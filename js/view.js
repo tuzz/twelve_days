@@ -14,8 +14,10 @@ var View = function (network, snowflake) {
   self.render = function () {
     context.clearRect(0, 0, canvas.width, canvas.height);
 
+    renderNetworkEdges();
     renderSnowflake();
-    renderNetwork();
+    renderInputLayer();
+    renderHiddenLayer();
   };
 
   var renderSnowflake = function () {
@@ -42,13 +44,80 @@ var View = function (network, snowflake) {
     return color;
   };
 
-  var renderNetwork = function () {
+  var renderNetworkEdges = function () {
+    for (var i = 0; i < network.binary.length; i += 1) {
+      var from = inputPoint(i);
+
+      for (var j = 0; j < network.hidden.length; j += 1) {
+        var to = snowflake.points[j];
+
+        context.lineWidth = 1;
+        context.strokeStyle = randomBlue();
+
+        context.globalAlpha = 0.3;
+        drawLine(from, to);
+      }
+    }
+
+    context.globalAlpha = 1;
+  };
+
+  var renderHiddenLayer = function () {
     for (var i = 0; i < network.hidden.length; i += 1) {
       var neuron = network.hidden[i];
       var point = snowflake.points[i];
 
       drawNeuron(neuron, point);
     }
+  };
+
+  var renderInputLayer = function () {
+    var previous = inputPoint(network.binary.length - 1);
+
+    for (var i = 0; i < network.binary.length; i += 1) {
+      var current = inputPoint(i);
+      drawLine(previous, current);
+      previous = current;
+    }
+
+    for (var i = 0; i < network.binary.length; i += 1) {
+      var neuron = network.binary[i];
+      var text = 2 ** (network.binary.length - i - 1);
+
+      var neuronPoint = inputPoint(i);
+      drawNeuron(neuron, neuronPoint);
+
+      var textPoint = inputPoint(i, true);
+      var fontSize = snowflake.width / 30;
+      drawText(text, textPoint, fontSize);
+    }
+
+    var fontSize = snowflake.width / 10;
+    drawText(network.decimal, snowflake.centroid, fontSize);
+  };
+
+  var inputPoint = function (i, offset = false) {
+    var centroid = snowflake.centroid;
+    var radius = snowflake.width / 6;
+
+    if (offset) {
+      radius *= 1.3;
+    }
+
+    var ratio = i / network.binary.length;
+
+    return {
+      x: (centroid.x + Math.sin(ratio * 2 * Math.PI) * radius),
+      y: (centroid.y + Math.cos(ratio * 2 * Math.PI) * radius)
+    };
+  };
+
+  var drawText = function (text, point, fontSize) {
+    context.fillStyle = "black";
+    context.font = "" + fontSize + "px Arial";
+    context.textAlign = "center";
+    context.textBaseline = "middle";
+    context.fillText(text, point.x, point.y);
   };
 
   var drawLine = function (from, to) {
@@ -72,21 +141,20 @@ var View = function (network, snowflake) {
     context.fill();
     context.lineWidth = 1;
     context.stroke();
+
+    context.shadowBlur = 0;
   };
 
   var randomBlue = function () {
-    var hex = ["a", "b", "c", "d", "e", "f"]
+    var hex = ["a", "b", "c", "d", "e", "f"];
 
-    var green1 = Math.floor(Math.random() * 6);
-    var green2 = Math.floor(Math.random() * 6);
+    var green = Math.floor(Math.random() * 6) + 4;
+    var blue = Math.floor(Math.random() * 6);
 
-    var blue1 = Math.floor(Math.random() * 6);
-    var blue2 = Math.floor(Math.random() * 6);
+    var g = "" + green;
+    var b = "" + hex[blue];
 
-    var green = "" + green1 + green2;
-    var blue = "" + hex[blue1] + hex[blue2];
-
-    return "#00" + green + blue;
+    return "#00" + g + g + b + b;
   };
 
   var activationColor = function (neuron) {
