@@ -4,19 +4,25 @@ SHELL := /bin/bash
 
 default: ruby octave js html
 
+server: python
 
+packages:
+	yarn --cwd js
+
+
+### ----------------
 ruby:
 	ruby -I ruby ruby/main.rb > bin/song.csv
 
 octave:
 	octave octave/main.m > bin/network.json
 
-js: node_modules
+js: packages
 	./js/node_modules/.bin/webpack --context js --config js/webpack.config.js
 
 html:
 	cp html/index.html bin/index.html
 
-
-node_modules:
-	yarn --cwd js
+python:
+	cd bin; python -m SimpleHTTPServer
+### ----------------
