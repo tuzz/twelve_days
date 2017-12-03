@@ -9,8 +9,6 @@ server: python
 packages:
 	yarn --cwd js
 
-
-### ----------------
 ruby:
 	ruby -I ruby ruby/main.rb > bin/song.csv
 
@@ -22,7 +20,7 @@ js: packages
 
 html:
 	cp html/index.html bin/index.html
+	rm -rf bin/images && cp -r images bin/images
 
 python:
 	cd bin; python -m SimpleHTTPServer
-### ----------------
