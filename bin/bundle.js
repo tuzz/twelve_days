@@ -69,12 +69,10 @@
 
 (function () {
   var Network = __webpack_require__(1);
-  var Snowflake = __webpack_require__(3);
-  var View = __webpack_require__(4);
+  var View = __webpack_require__(3);
 
   var network = new Network();
-  var snowflake = new Snowflake({ x: 300, y: 400 }, 500, 2);
-  var view = new View(network, snowflake);
+  var view = new View(network);
 
   view.render();
 })();
@@ -109,34 +107,8 @@ var Network = function () {
     });
   };
 
-  var set = function (condition) {
-    for (var i = 0; i < data.length; i += 1) {
-      var item = data[i];
-
-      if (condition(item)) {
-        self.word = item.word;
-        self.decimal = indexToDecimal(item.index);
-        self.binary = item.binary;
-        self.category = item.category;
-        self.categoryName = nameFor(item.category);
-        self.guess = item.guess;
-        self.guessName = nameFor(item.guess);
-        self.hidden = item.hidden;
-        self.output = item.output;
-        self.trained = item.trained;
-
-        return true;
-      }
-    }
-  };
-
-  // Octave is 1-indexed rather than 0-indexed.
-  var indexToDecimal = function (index) {
-    return index - 1;
-  };
-
   // These should match the Ruby implementation.
-  var nameFor = function (index) {
+  self.nameFor = function (index) {
     return [
       "Partridge in a Pear Tree",
       "Turtle Dove",
@@ -155,6 +127,32 @@ var Network = function () {
     ][indexToDecimal(index)];
   };
 
+  var set = function (condition) {
+    for (var i = 0; i < data.length; i += 1) {
+      var item = data[i];
+
+      if (condition(item)) {
+        self.word = item.word;
+        self.decimal = indexToDecimal(item.index);
+        self.binary = item.binary;
+        self.category = item.category;
+        self.categoryName = self.nameFor(item.category);
+        self.guess = item.guess;
+        self.guessName = self.nameFor(item.guess);
+        self.hidden = item.hidden;
+        self.output = item.output;
+        self.trained = item.trained;
+
+        return true;
+      }
+    }
+  };
+
+  // Octave is 1-indexed rather than 0-indexed.
+  var indexToDecimal = function (index) {
+    return index - 1;
+  };
+
   initialize();
 };
 
@@ -169,6 +167,221 @@ module.exports = {"stats":{"train":95.99,"test":60.78,"total":91.76},"data":[{"i
 
 /***/ }),
 /* 3 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var Snowflake = __webpack_require__(4);
+
+var View = function (network) {
+  var self = this;
+  var canvas, context;
+  var snowflake;
+
+  var initialize = function () {
+    canvas = document.getElementById("canvas");
+    canvas.width = 1200;
+    canvas.height = 800;
+
+    context = canvas.getContext("2d");
+    context.translate(0.5, 0.5);
+
+    var x = canvas.width / 2;
+    var y = canvas.height / 2 - 40;
+    var width = 600;
+
+    snowflake = new Snowflake({ x: x, y: y }, width, 2);
+  };
+
+  self.render = function () {
+    context.clearRect(0, 0, canvas.width, canvas.height);
+
+    renderNetworkEdges();
+    renderSnowflake();
+    renderInputLayer();
+    renderHiddenLayer();
+    renderImages();
+  };
+
+  var renderSnowflake = function () {
+    var color = randomBlue();
+
+    context.strokeStyle = color;
+    context.lineWidth = snowflake.width / 100;
+
+    var points = snowflake.points;
+
+    var first = points[0];
+    var last = points[points.length - 1];
+
+    var previous = first;
+    for (var i = 1; i < points.length; i += 1) {
+      var point = points[i];
+
+      drawLine(previous, point);
+      previous = point;
+    }
+
+    drawLine(last, first);
+
+    return color;
+  };
+
+  var renderNetworkEdges = function () {
+    for (var i = 0; i < network.binary.length; i += 1) {
+      var from = inputPoint(i);
+
+      for (var j = 0; j < network.hidden.length; j += 1) {
+        var to = snowflake.points[j];
+
+        context.lineWidth = 1;
+        context.strokeStyle = randomBlue();
+
+        context.globalAlpha = 0.3;
+        drawLine(from, to);
+      }
+    }
+
+    context.globalAlpha = 1;
+  };
+
+  var renderHiddenLayer = function () {
+    for (var i = 0; i < network.hidden.length; i += 1) {
+      var neuron = network.hidden[i];
+      var point = snowflake.points[i];
+
+      drawNeuron(neuron, point);
+    }
+  };
+
+  var renderInputLayer = function () {
+    var previous = inputPoint(network.binary.length - 1);
+
+    for (var i = 0; i < network.binary.length; i += 1) {
+      var current = inputPoint(i);
+      drawLine(previous, current);
+      previous = current;
+    }
+
+    for (var i = 0; i < network.binary.length; i += 1) {
+      var neuron = network.binary[i];
+      var text = 2 ** (network.binary.length - i - 1);
+
+      var neuronPoint = inputPoint(i);
+      drawNeuron(neuron, neuronPoint);
+
+      var textPoint = inputPoint(i, true);
+      var fontSize = snowflake.width / 30;
+      drawText(text, textPoint, fontSize);
+    }
+
+    var fontSize = snowflake.width / 10;
+    drawText(network.decimal, snowflake.centroid, fontSize);
+  };
+
+  var renderImages = function () {
+    for (var i = 0; i < 14; i += 1) {
+      var name = network.nameFor(i + 1);
+      var path = "images/" + name + ".jpg";
+
+      var x, y;
+
+      if (i < 7) {
+        x = 0;
+        y = i * 100;
+      } else {
+        x = canvas.width - 176;
+        y = (i - 7) * 100;
+      }
+
+      drawImage(path, x, y);
+    }
+  };
+
+  var drawImage = function (path, x, y) {
+    var image = new Image();
+
+    image.onload = function () {
+      context.drawImage(image, x, y, 175, 100);
+      context.strokeStyle = "gray";
+      context.strokeRect(x, y, 175, 100);
+    }
+
+    image.src = path;
+  };
+
+  var inputPoint = function (i, offset = false) {
+    var centroid = snowflake.centroid;
+    var radius = snowflake.width / 6;
+
+    if (offset) {
+      radius *= 1.3;
+    }
+
+    var ratio = i / network.binary.length;
+
+    return {
+      x: (centroid.x + Math.sin(ratio * 2 * Math.PI) * radius),
+      y: (centroid.y + Math.cos(ratio * 2 * Math.PI) * radius)
+    };
+  };
+
+  var drawText = function (text, point, fontSize) {
+    context.fillStyle = "black";
+    context.font = "" + fontSize + "px Arial";
+    context.textAlign = "center";
+    context.textBaseline = "middle";
+    context.fillText(text, point.x, point.y);
+  };
+
+  var drawLine = function (from, to) {
+    context.beginPath();
+    context.moveTo(from.x, from.y);
+    context.lineTo(to.x, to.y);
+    context.stroke();
+    context.closePath();
+  };
+
+  var drawNeuron = function (neuron, point) {
+    var radius = snowflake.width / 50;
+    var color = activationColor(neuron);
+    var blur = radius * 2;
+
+    context.beginPath();
+    context.arc(point.x, point.y, radius, 0, 2 * Math.PI, false);
+    context.fillStyle = color;
+    context.shadowColor = "yellow";
+    context.shadowBlur = neuron > 0.8 ? blur : 0;
+    context.fill();
+    context.lineWidth = 1;
+    context.stroke();
+
+    context.shadowBlur = 0;
+  };
+
+  var randomBlue = function () {
+    var hex = ["a", "b", "c", "d", "e", "f"];
+
+    var green = Math.floor(Math.random() * 6) + 4;
+    var blue = Math.floor(Math.random() * 6);
+
+    var g = "" + green;
+    var b = "" + hex[blue];
+
+    return "#00" + g + g + b + b;
+  };
+
+  var activationColor = function (neuron) {
+    var percent = neuron * 100;
+    return "rgb(" + percent + "%," + percent + "%,50%)";
+  };
+
+  initialize();
+};
+
+module.exports = View;
+
+
+/***/ }),
+/* 4 */
 /***/ (function(module, exports) {
 
 var Snowflake = function (centroid, width, iterations = 3) {
@@ -266,180 +479,6 @@ var Snowflake = function (centroid, width, iterations = 3) {
 };
 
 module.exports = Snowflake;
-
-
-/***/ }),
-/* 4 */
-/***/ (function(module, exports) {
-
-var View = function (network, snowflake) {
-  var self = this;
-  var canvas, context;
-
-  var initialize = function () {
-    canvas = document.getElementById("canvas");
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-
-    context = canvas.getContext("2d");
-    context.translate(0.5, 0.5);
-  };
-
-  self.render = function () {
-    context.clearRect(0, 0, canvas.width, canvas.height);
-
-    renderNetworkEdges();
-    renderSnowflake();
-    renderInputLayer();
-    renderHiddenLayer();
-  };
-
-  var renderSnowflake = function () {
-    var color = randomBlue();
-
-    context.strokeStyle = color;
-    context.lineWidth = snowflake.width / 100;
-
-    var points = snowflake.points;
-
-    var first = points[0];
-    var last = points[points.length - 1];
-
-    var previous = first;
-    for (var i = 1; i < points.length; i += 1) {
-      var point = points[i];
-
-      drawLine(previous, point);
-      previous = point;
-    }
-
-    drawLine(last, first);
-
-    return color;
-  };
-
-  var renderNetworkEdges = function () {
-    for (var i = 0; i < network.binary.length; i += 1) {
-      var from = inputPoint(i);
-
-      for (var j = 0; j < network.hidden.length; j += 1) {
-        var to = snowflake.points[j];
-
-        context.lineWidth = 1;
-        context.strokeStyle = randomBlue();
-
-        context.globalAlpha = 0.3;
-        drawLine(from, to);
-      }
-    }
-
-    context.globalAlpha = 1;
-  };
-
-  var renderHiddenLayer = function () {
-    for (var i = 0; i < network.hidden.length; i += 1) {
-      var neuron = network.hidden[i];
-      var point = snowflake.points[i];
-
-      drawNeuron(neuron, point);
-    }
-  };
-
-  var renderInputLayer = function () {
-    var previous = inputPoint(network.binary.length - 1);
-
-    for (var i = 0; i < network.binary.length; i += 1) {
-      var current = inputPoint(i);
-      drawLine(previous, current);
-      previous = current;
-    }
-
-    for (var i = 0; i < network.binary.length; i += 1) {
-      var neuron = network.binary[i];
-      var text = 2 ** (network.binary.length - i - 1);
-
-      var neuronPoint = inputPoint(i);
-      drawNeuron(neuron, neuronPoint);
-
-      var textPoint = inputPoint(i, true);
-      var fontSize = snowflake.width / 30;
-      drawText(text, textPoint, fontSize);
-    }
-
-    var fontSize = snowflake.width / 10;
-    drawText(network.decimal, snowflake.centroid, fontSize);
-  };
-
-  var inputPoint = function (i, offset = false) {
-    var centroid = snowflake.centroid;
-    var radius = snowflake.width / 6;
-
-    if (offset) {
-      radius *= 1.3;
-    }
-
-    var ratio = i / network.binary.length;
-
-    return {
-      x: (centroid.x + Math.sin(ratio * 2 * Math.PI) * radius),
-      y: (centroid.y + Math.cos(ratio * 2 * Math.PI) * radius)
-    };
-  };
-
-  var drawText = function (text, point, fontSize) {
-    context.fillStyle = "black";
-    context.font = "" + fontSize + "px Arial";
-    context.textAlign = "center";
-    context.textBaseline = "middle";
-    context.fillText(text, point.x, point.y);
-  };
-
-  var drawLine = function (from, to) {
-    context.beginPath();
-    context.moveTo(from.x, from.y);
-    context.lineTo(to.x, to.y);
-    context.stroke();
-    context.closePath();
-  };
-
-  var drawNeuron = function (neuron, point) {
-    var radius = snowflake.width / 50;
-    var color = activationColor(neuron);
-    var blur = radius * 2;
-
-    context.beginPath();
-    context.arc(point.x, point.y, radius, 0, 2 * Math.PI, false);
-    context.fillStyle = color;
-    context.shadowColor = "yellow";
-    context.shadowBlur = neuron > 0.8 ? blur : 0;
-    context.fill();
-    context.lineWidth = 1;
-    context.stroke();
-
-    context.shadowBlur = 0;
-  };
-
-  var randomBlue = function () {
-    var hex = ["a", "b", "c", "d", "e", "f"];
-
-    var green = Math.floor(Math.random() * 6) + 4;
-    var blue = Math.floor(Math.random() * 6);
-
-    var g = "" + green;
-    var b = "" + hex[blue];
-
-    return "#00" + g + g + b + b;
-  };
-
-  var activationColor = function (neuron) {
-    var percent = neuron * 100;
-    return "rgb(" + percent + "%," + percent + "%,50%)";
-  };
-
-  initialize();
-};
-
-module.exports = View;
 
 
 /***/ })

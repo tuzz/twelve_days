@@ -23,34 +23,8 @@ var Network = function () {
     });
   };
 
-  var set = function (condition) {
-    for (var i = 0; i < data.length; i += 1) {
-      var item = data[i];
-
-      if (condition(item)) {
-        self.word = item.word;
-        self.decimal = indexToDecimal(item.index);
-        self.binary = item.binary;
-        self.category = item.category;
-        self.categoryName = nameFor(item.category);
-        self.guess = item.guess;
-        self.guessName = nameFor(item.guess);
-        self.hidden = item.hidden;
-        self.output = item.output;
-        self.trained = item.trained;
-
-        return true;
-      }
-    }
-  };
-
-  // Octave is 1-indexed rather than 0-indexed.
-  var indexToDecimal = function (index) {
-    return index - 1;
-  };
-
   // These should match the Ruby implementation.
-  var nameFor = function (index) {
+  self.nameFor = function (index) {
     return [
       "Partridge in a Pear Tree",
       "Turtle Dove",
@@ -67,6 +41,32 @@ var Network = function () {
       "Numeric",
       "Other"
     ][indexToDecimal(index)];
+  };
+
+  var set = function (condition) {
+    for (var i = 0; i < data.length; i += 1) {
+      var item = data[i];
+
+      if (condition(item)) {
+        self.word = item.word;
+        self.decimal = indexToDecimal(item.index);
+        self.binary = item.binary;
+        self.category = item.category;
+        self.categoryName = self.nameFor(item.category);
+        self.guess = item.guess;
+        self.guessName = self.nameFor(item.guess);
+        self.hidden = item.hidden;
+        self.output = item.output;
+        self.trained = item.trained;
+
+        return true;
+      }
+    }
+  };
+
+  // Octave is 1-indexed rather than 0-indexed.
+  var indexToDecimal = function (index) {
+    return index - 1;
   };
 
   initialize();

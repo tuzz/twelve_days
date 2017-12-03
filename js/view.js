@@ -1,14 +1,23 @@
-var View = function (network, snowflake) {
+var Snowflake = require("./snowflake");
+
+var View = function (network) {
   var self = this;
   var canvas, context;
+  var snowflake;
 
   var initialize = function () {
     canvas = document.getElementById("canvas");
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+    canvas.width = 1200;
+    canvas.height = 800;
 
     context = canvas.getContext("2d");
     context.translate(0.5, 0.5);
+
+    var x = canvas.width / 2;
+    var y = canvas.height / 2 - 40;
+    var width = 600;
+
+    snowflake = new Snowflake({ x: x, y: y }, width, 2);
   };
 
   self.render = function () {
@@ -18,6 +27,7 @@ var View = function (network, snowflake) {
     renderSnowflake();
     renderInputLayer();
     renderHiddenLayer();
+    renderImages();
   };
 
   var renderSnowflake = function () {
@@ -94,6 +104,37 @@ var View = function (network, snowflake) {
 
     var fontSize = snowflake.width / 10;
     drawText(network.decimal, snowflake.centroid, fontSize);
+  };
+
+  var renderImages = function () {
+    for (var i = 0; i < 14; i += 1) {
+      var name = network.nameFor(i + 1);
+      var path = "images/" + name + ".jpg";
+
+      var x, y;
+
+      if (i < 7) {
+        x = 0;
+        y = i * 100;
+      } else {
+        x = canvas.width - 176;
+        y = (i - 7) * 100;
+      }
+
+      drawImage(path, x, y);
+    }
+  };
+
+  var drawImage = function (path, x, y) {
+    var image = new Image();
+
+    image.onload = function () {
+      context.drawImage(image, x, y, 175, 100);
+      context.strokeStyle = "gray";
+      context.strokeRect(x, y, 175, 100);
+    }
+
+    image.src = path;
   };
 
   var inputPoint = function (i, offset = false) {
