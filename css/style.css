@@ -18,13 +18,20 @@ canvas {
   margin-top: 1em;
 }
 
-#dizzy {
+a {
   font-family: "Helvetica";
+  color: #0077ff;
+}
+
+#dizzy {
   position: absolute;
   right: 2em;
-  color: #0077ff;
 }
 
 strong {
   font-weight: bold;
+}
+
+.footer {
+  margin: 3em 0;
 }
