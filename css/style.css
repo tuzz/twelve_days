@@ -1,0 +1,19 @@
+p {
+  font-family: "Helvetica";
+  margin-top: 1em;
+  text-align: center;
+}
+
+h1 {
+  font-family: "Helvetica";
+  font-size: 2em;
+  text-align: center;
+  letter-spacing: 0.01em;
+  line-height: 1.2em;
+}
+
+canvas {
+  display: block;
+  margin: auto;
+  margin-top: 1em;
+}
