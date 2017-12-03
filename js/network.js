@@ -2,12 +2,14 @@ var Network = function () {
   var self = this;
   var data, stats;
 
-  $.getJSON("network.json", function (networkData) {
-    data = networkData.data;
+  var initialize = function () {
+    var networkData = require("../bin/network.json");
+
     stats = networkData.stats;
+    data = networkData.data;
 
     self.setDecimalInput(0);
-  });
+  };
 
   self.setBinaryInput = function (binary) {
     return set(function (item) {
@@ -66,4 +68,8 @@ var Network = function () {
       "Other"
     ][indexToDecimal(index)];
   };
+
+  initialize();
 };
+
+module.exports = Network;

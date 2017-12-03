@@ -1,0 +1,7 @@
+{
+  "private": true,
+  "devDependencies": {
+    "json-loader": "^0.5.7",
+    "webpack": "^3.9.1"
+  }
+}
