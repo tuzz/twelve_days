@@ -133,7 +133,7 @@ var View = function (network) {
 
       var textPoint = inputPoint(i, true);
       var fontSize = snowflake.width / 30;
-      drawText(text, textPoint, fontSize);
+      drawText(text, textPoint, fontSize, "#444444");
     }
 
     var fontSize = snowflake.width / 10;
@@ -252,6 +252,7 @@ var View = function (network) {
     image.src = path;
   };
 
+  var inputRotation = 0;
   var inputPoint = function (i, offset = false) {
     var centroid = snowflake.centroid;
     var radius = snowflake.width / 6;
@@ -262,10 +263,18 @@ var View = function (network) {
 
     var ratio = i / network.binary.length;
 
-    return {
+    var point = {
       x: (centroid.x + Math.sin(ratio * 2 * Math.PI) * radius),
       y: (centroid.y + Math.cos(ratio * 2 * Math.PI) * radius)
     };
+
+    inputRotation -= rotation / 40;
+
+    if (inputRotation < 0) {
+      inputRotation += 360;
+    }
+
+    return snowflake.rotatePoint(point, inputRotation);
   };
 
   var imagePoint = function (i, offset = false) {
