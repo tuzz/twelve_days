@@ -20,10 +20,13 @@ var View = function (network) {
     snowflake = new Snowflake({ x: x, y: y }, width, 2);
 
     renderImages();
+    bindKeys();
   };
 
   self.render = function () {
-    context.clearRect(176, 0, canvas.width - 352, canvas.height);
+    // Clear everything except the images.
+    context.clearRect(176, 0, canvas.width - 352, canvas.height - 60);
+    context.clearRect(0, canvas.height - 60, canvas.width, 60);
 
     renderNetworkEdges();
     renderSnowflake();
@@ -271,6 +274,37 @@ var View = function (network) {
     context.stroke();
 
     context.shadowBlur = 0;
+  };
+
+  var bindKeys = function () {
+		document.onkeydown = function (event) {
+			event = event || window.event;
+
+      switch (event.keyCode) {
+        case 37: // left arrow
+          event.preventDefault();
+          left();
+          break;
+        case 39: // right arrow
+          event.preventDefault();
+          right();
+          break;
+      }
+		};
+  };
+
+  var left = function () {
+    var i = network.decimal;
+    if (i === 0) return;
+    network.setDecimalInput(i - 1);
+    self.render();
+  };
+
+  var right = function () {
+    var i = network.decimal;
+    if (i === network.words.length - 1) return;
+    network.setDecimalInput(i + 1);
+    self.render();
   };
 
   var randomBlue = function () {
