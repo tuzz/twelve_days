@@ -197,7 +197,7 @@ var View = function (network) {
     rotation *= 20;
 
     var link = document.getElementById("dizzy");
-    link.href = "/";
+    link.href = link.href.substring(0, link.href.length - 10);
     link.text = "i'm dizzy enough";
   }
 
