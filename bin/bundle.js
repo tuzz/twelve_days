@@ -426,11 +426,11 @@ var View = function (network) {
     var y = canvas.height - 15;
 
     var binary = network.binary.join("");
-    var word = network.word;
+    var name = network.categoryName;
 
     var text, color;
     if (network.trained) {
-      text = "(the network was trained with " + binary + "=" + word +")";
+      text = "(the network was trained with " + binary + "=" + name +")";
       color = "gray";
     } else {
       text = "(the network has never seen " + binary + " before)";
